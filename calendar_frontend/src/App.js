@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Calendar from './Calendar.jsx';
 
 // PUBLIC_INTERFACE
 function App() {
@@ -26,6 +27,8 @@ function App() {
         >
           {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
         </button>
+        {/* Calendar Integration - imported from extracted assets */}
+        <Calendar />
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.

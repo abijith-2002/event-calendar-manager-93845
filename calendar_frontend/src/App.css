@@ -46,11 +46,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   font-size: calc(10px + 2vmin);
   color: var(--text-primary);
   transition: background-color 0.3s ease;
   position: relative;
+  padding-top: 56px;
+}
+
+/* Ensure the calendar renders above the App-logo */
+.App-header > .App-logo {
+  margin-top: 32px;
 }
 
 .App-link {
