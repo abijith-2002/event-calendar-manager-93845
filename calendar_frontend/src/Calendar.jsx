@@ -43,6 +43,94 @@ const CALENDAR_MONTHS = [
  */
 const WEEKDAYS = ["SAN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
+/**
+ * A dialog/modal for adding events
+ * @param {boolean} open
+ * @param {function} onClose
+ * @param {function} onSave
+ * @param {object} dateObj - { year, month, day }
+ */
+function AddEventDialog({ open, onClose, onSave, dateObj }) {
+  const [title, setTitle] = useState("");
+  const [details, setDetails] = useState("");
+
+  // Reset when opened
+  React.useEffect(() => {
+    if (open) {
+      setTitle("");
+      setDetails("");
+    }
+  }, [open, dateObj]);
+
+  if (!open) return null;
+  const fullDate =
+    dateObj && dateObj.day
+      ? `${CALENDAR_MONTHS[dateObj.month]} ${dateObj.day}, ${dateObj.year}`
+      : "";
+
+  return (
+    <div className={styles.modalOverlay} tabIndex={-1} aria-modal="true" role="dialog">
+      <div className={styles.modalContent}>
+        <div className={styles.modalHeader}>
+          <span className={styles.modalTitle}>Add Event</span>
+          <button className={styles.modalCloseBtn} onClick={onClose} title="Close" aria-label="Close">
+            ×
+          </button>
+        </div>
+        <form
+          className={styles.modalForm}
+          onSubmit={e => {
+            e.preventDefault();
+            if (title.trim()) {
+              onSave({ title: title.trim(), details: details.trim(), date: dateObj });
+            }
+          }}
+        >
+          <div className={styles.modalField}>
+            <label htmlFor="event-title" className={styles.modalLabel}>Title<span style={{ color: "#f04d23" }}>*</span></label>
+            <input
+              id="event-title"
+              className={styles.modalInput}
+              type="text"
+              maxLength={64}
+              autoFocus
+              autoComplete="off"
+              value={title}
+              required
+              onChange={e => setTitle(e.target.value)}
+              placeholder="Event title"
+            />
+          </div>
+          <div className={styles.modalField}>
+            <label htmlFor="event-details" className={styles.modalLabel}>Details</label>
+            <textarea
+              id="event-details"
+              className={styles.modalTextarea}
+              rows={3}
+              maxLength={256}
+              value={details}
+              onChange={e => setDetails(e.target.value)}
+              placeholder="Details (optional)"
+              style={{ resize: "vertical" }}
+            />
+          </div>
+          <div className={styles.modalControls}>
+            <button type="button" className={styles.modalBtnSecondary} onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className={styles.modalBtnPrimary} disabled={!title.trim()}>
+              Add Event
+            </button>
+          </div>
+          {fullDate && (
+            <div className={styles.modalDateInfo}>{fullDate}</div>
+          )}
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // PUBLIC_INTERFACE
 function Calendar() {
   /**
@@ -55,6 +143,13 @@ function Calendar() {
   const [viewMonth, setViewMonth] = useState(8); // 0-based: 8 = September
 
   const weeks = getMonthDays(viewYear, viewMonth);
+
+  // Modal state for event dialog
+  const [modalOpen, setModalOpen] = useState(false);
+  const [eventDate, setEventDate] = useState(null); // {year, month, day}
+
+  // Placeholder: list of events (not displayed yet)
+  const [events, setEvents] = useState([]);
 
   // PUBLIC_INTERFACE
   const handlePrev = () => {
@@ -78,6 +173,19 @@ function Calendar() {
     }
     setViewMonth(nextMonth);
     setViewYear(year);
+  };
+
+  // Open dialog for the given date
+  const handleDateClick = (day) => {
+    if (!day) return;
+    setEventDate({ year: viewYear, month: viewMonth, day });
+    setModalOpen(true);
+  };
+
+  // Add event handler
+  const handleAddEvent = (eventData) => {
+    setEvents(prev => [...prev, eventData]);
+    setModalOpen(false);
   };
 
   /**
@@ -149,12 +257,27 @@ function Calendar() {
                   cellClass += ` ${styles.today}`;
                 }
               }
+              // Add date-click handler if day is valid
               return (
                 <div
                   className={cellClass}
                   key={`date-${rowIdx}-${colIdx}`}
                   data-active={isActive(day, viewMonth, viewYear) ? "true" : undefined}
                   data-today={isToday(day, viewMonth, viewYear) ? "true" : undefined}
+                  tabIndex={day ? 0 : -1}
+                  style={day ? { cursor: "pointer" } : {}}
+                  onClick={day ? () => handleDateClick(day) : undefined}
+                  onKeyDown={
+                    day
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            handleDateClick(day);
+                          }
+                        }
+                      : undefined
+                  }
+                  aria-label={day ? `Add event for ${CALENDAR_MONTHS[viewMonth]} ${day}, ${viewYear}` : undefined}
+                  role={day ? "button" : undefined}
                 >
                   {day}
                 </div>
@@ -163,6 +286,12 @@ function Calendar() {
           </div>
         ))}
       </div>
+      <AddEventDialog
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSave={handleAddEvent}
+        dateObj={eventDate}
+      />
     </div>
   );
 }
