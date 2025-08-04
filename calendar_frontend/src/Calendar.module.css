@@ -48,11 +48,13 @@
   border-radius: var(--radius-8);
   box-shadow: var(--shadow-calendar);
   width: 306px;
-  min-height: 354px;
-  padding: var(--spacing-16) var(--spacing-14) var(--spacing-16) var(--spacing-14);
+  /* Reduce min-height to 310px as per Figma, and tighten up padding */
+  min-height: 310px;
+  padding: 14px 8px 14px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .calendarHeader {
@@ -60,7 +62,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-14);
+  margin-bottom: 8px; /* Reduce default bottom margin to tighten vertical compactness */
 }
 
 .calendarNavBtn {
@@ -89,7 +91,7 @@
   display: flex;
   width: 100%;
   justify-content: space-between;
-  margin-bottom: var(--spacing-12);
+  margin-bottom: 4px; /* Reduce spacing below weekdays */
 }
 
 .calendarWeekday {
@@ -100,6 +102,12 @@
   line-height: var(--font-typo-6-line);
   text-align: center;
   width: var(--spacing-30);
+  height: 20px; /* explicitly define height for vertical compaction */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
 }
 
 .calendarDates {
@@ -107,11 +115,15 @@
   flex-direction: column;
   width: 100%;
   gap: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .calendarDatesRow {
   display: flex;
   width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .calendarDate {
@@ -121,12 +133,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-8);
+  border-radius: 8px;
   color: var(--font-typo-7-color);
   font-size: var(--font-typo-7-size);
   font-weight: var(--font-typo-7-weight);
   line-height: var(--font-typo-7-line);
   transition: background .2s, color .2s;
+  box-sizing: border-box;
+  padding: 0;
 }
 
 .inactive {
@@ -157,5 +171,6 @@
     width:90vw;
     min-width: 240px;
     max-width:320px;
+    padding: 8px 2px 8px 2px;
   }
 }
